@@ -10,6 +10,7 @@ exports.createUser = (req, res, next) => {
     const validInput = new inputValidator.Validator(req.body, {
         firstname: 'required|string|length:100',
         lastname: 'required|string|length:100',
+        email: 'required|email|length:100',
         password: 'required'
     });
 
@@ -22,23 +23,23 @@ exports.createUser = (req, res, next) => {
                 bcrypt.hash(req.body.password, 10)
                 .then(hash => {
 
-                    /*
-                    const user = {
-                        firstname: req.body.firstname,
-                        lasstname: req.body.lastname,
-                        password: hash
-                    };
+                /*
+                const user = {
+                    firstname: req.body.firstname,
+                    lasstname: req.body.lastname,
+                    password: hash
+                };
 
                  sql query INSERT INTO users
 
                  ou
                  
                  CREATE USER 'user_name'@'localhost' IDENTIFIED BY 'mot_de_passe';
-                    GRANT PRIVILEGES on database_name. xxx TO 'user'@'localhost';*/
+                 GRANT PRIVILEGES on database_name. xxx TO 'user'@'localhost';
+                    */
+
                 })
                 .catch(error => res.status(500).json({ error }));
-            }
-
             } else {
                 throw 'Invalid password';
             }
@@ -50,7 +51,9 @@ exports.createUser = (req, res, next) => {
 /* input validation, search existing user, compare send PW with saved PW, return user Id and user token */
 exports.authentifyUser = (req, res, next) => {
     const validInput = new inputValidator.Validator(req.body, {
-        email: 'required|email',
+        firstname: 'required|string|length:100',
+        lastname: 'required|string|length:100',
+        email: 'required|email|length:100',
         password: 'required'
     });
 

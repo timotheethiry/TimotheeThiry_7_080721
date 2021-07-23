@@ -17,6 +17,6 @@ router.delete('/users/:id', auth, userController.deleteUser);
 router.get('/users', auth, userController.getAllUsers)
 
 /* get one user -- masked data security */
-router.get('/users/:id', auth,userController.getUser)
+router.get('/users/:id', auth, userController.getUser)
 
 module.exports = router;

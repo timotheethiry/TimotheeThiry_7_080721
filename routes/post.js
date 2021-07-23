@@ -1,11 +1,14 @@
 const express = require('express');
 const router = express.Router();
-
 const postController = require('../controllers/post');
 const auth = require('../middleware/auth');
+const multer = require('../middleware/multer');
 
 /* create a post */
-router.post('/', auth, postController.createPost);
+router.post('/', auth, multer, postController.createPost);
+
+/* modify a post */
+router.post('/', auth, multer, postController.modifyPost);
 
 /* delete a post */
 router.delete('/:id', auth, postController.deletePost);
