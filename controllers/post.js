@@ -1,4 +1,4 @@
-// const post = require('../models/post');
+const Post = require('../models/post');
 const fs = require('fs');
 const inputValidator = require('node-input-validator');
 
