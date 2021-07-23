@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const mysql = require('mysql');
+const mysql = require('mysql2');
 const env = require('dotenv').config();
 
 /* import the posts and user CRUD routers */
