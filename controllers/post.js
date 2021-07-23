@@ -1,8 +1,8 @@
-// const post = require('../models/sauce');
+// const post = require('../models/post');
 const fs = require('fs');
 const inputValidator = require('node-input-validator');
 
-/* create a sauce, convert the body request from form-data JS object, set likes and users to 0 */
+/* create a post, convert the body request from form-data JS object */
 exports.createPost = (req, res, next) => {
     const postObject = JSON.parse(req.body.post);
     const validInput = new inputValidator.Validator(postObject, {
@@ -31,7 +31,7 @@ exports.createPost = (req, res, next) => {
 };
 
 /* modify a post w/ or w/o an image */
-exports.modifySauce = (req, res, next) => {
+exports.modifyPost = (req, res, next) => {
     const postObject = req.file ?
     { 
         ...JSON.parse(req.body.post),
@@ -50,7 +50,7 @@ exports.modifySauce = (req, res, next) => {
             res.status(400).send(validInput.errors);
         } else {
             
-            if ( sauce.userId == res.locals.userId ) {
+            if ( post.userId == res.locals.userId ) {
                 // query update post
             }
         }
@@ -58,13 +58,13 @@ exports.modifySauce = (req, res, next) => {
     .catch(errors => res.status(400).send(validInput.errors));
 };
 
-/* delete a sauce, search the corresponding image and delete it */
+/* delete a post, search the corresponding image and delete it */
 exports.deletePost = (req, res, next) => {
 
     /* sql query DROP
-    if ( post.userId == res.locals.userId ) { or is admin === true
+    if ( post.userId == res.locals.userId || isAdmin === true) {
 
-        const filename = sauce.imageUrl.split('/images/')[1];
+        const filename = post.imageUrl.split('/images/')[1];
         fs.unlink(`images/${filename}`, () => {
             DROP 
         }) 
@@ -72,14 +72,14 @@ exports.deletePost = (req, res, next) => {
      */
 };
 
-/* returns a specific sauce for GET requests */
+/* returns a specific post for GET requests */
 exports.getOnePost = (req, res, next) => {
     
     /* sql query SELECT FROM posts
     WHERE id */
 };
 
-/* returns all sauces for GET requests */
+/* returns all posts for GET requests */
 exports.getAllPosts = (req, res, next) => {
     
     /* sql query SELECT * FROM posts */
