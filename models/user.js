@@ -24,6 +24,11 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'User',
+    scopes: {
+      withoutEmail: {
+        attributes: { exclude: ['email'] },
+      }
+    }
   });
   return User;
 };
