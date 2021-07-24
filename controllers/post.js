@@ -1,6 +1,7 @@
 const Post = require('../models/post');
 const fs = require('fs');
 const inputValidator = require('node-input-validator');
+const post = require('../models/post');
 
 /* create a post, convert the body request from form-data JS object */
 exports.createPost = (req, res, next) => {
@@ -15,16 +16,16 @@ exports.createPost = (req, res, next) => {
         if (!matched) {
             res.status(400).send(validInput.errors);
         } else {
-            /* sql query INSERT INTO posts
             const date = new Date();
-            const post =  {
-                userId: res.locals.userId,
-                title: req.body.title,
-                body: req.body.content,
-                date: date,
-                imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`, 
-            }; */
-            res.status(201).json({ message: 'New post created !' });
+            const post =  Post.create({
+                users_id: res.locals.userId,
+                title: postObject.title,
+                content: postObject.content,
+                date_issue: date,
+                image_url: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`, 
+            })
+            .then(() => res.status(201).json({ message: 'New post created !' }))
+            .catch(error => res.status(400).json({ error }));
         }
     })
     .catch(errors => res.status(400).send(validInput.errors));
@@ -35,7 +36,7 @@ exports.modifyPost = (req, res, next) => {
     const postObject = req.file ?
     { 
         ...JSON.parse(req.body.post),
-        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+        image_url: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
     } : { 
         ...req.body // w/o the image the body is alreay an object JS it can't be parsed
     };
@@ -49,10 +50,19 @@ exports.modifyPost = (req, res, next) => {
         if (!matched) {
             res.status(400).send(validInput.errors);
         } else {
-            
-            if ( post.userId == res.locals.userId ) {
-                // query update post
-            }
+            Post.findOne({ 
+                where: { id: req.params.id }
+            })
+            .then(post => {
+                if ( post.users_id == res.locals.userId ) {
+                    Post.update({ ...sauceObject }, {
+                        where: { id: req.params.id } 
+                    })
+                    .then(() => res.status(200).json({ message: 'Post modified !' }))
+                    .catch(error => res.status(400).json({ error }));
+                }
+            })
+            .catch(error => res.status(400).json({ error }));
         }
     })
     .catch(errors => res.status(400).send(validInput.errors));
@@ -60,11 +70,27 @@ exports.modifyPost = (req, res, next) => {
 
 /* delete a post, search the corresponding image and delete it */
 exports.deletePost = (req, res, next) => {
+    Post.findOne({ 
+        where: { id: req.params.id }
+    })
+    .then(post => {
+        if ( post.user_id == res.locals.userId ) {
+            const filename = post.image_url.split('/images/')[1];
+            fs.unlink(`images/${filename}`, () => {
+                Post.deleteOne({ 
+                    where: { id: req.params.id } 
+                })
+                .then(() => res.status(200).json({ message: 'Post deleted !' }))
+                .catch(error => res.status(400).json({ error }));
+            }) 
+        }
+    })
+    .catch(error => res.status(500).json({ error }));
 
     /* sql query DROP
-    if ( post.userId == res.locals.userId || isAdmin === true) {
+    if ( post.userId == res.locals.userId || user.isAdmin === true) {
 
-        const filename = post.imageUrl.split('/images/')[1];
+        const filename = post.image_url.split('/images/')[1];
         fs.unlink(`images/${filename}`, () => {
             DROP 
         }) 
