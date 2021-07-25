@@ -32,15 +32,6 @@ connection.connect((err) => {
     console.log('Access granted to mysql!');
 });
 
-/* query example to remove */
-connection.query('SELECT * FROM posts', (err,rows) => {
-    if(err) {
-        console.log('Query failed !');
-        return;
-    }
-    console.log(rows)
-  });
-
 /* CORS issues -- check to port used by vuejs */
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
