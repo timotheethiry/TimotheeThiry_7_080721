@@ -13,13 +13,10 @@ router.post('/login', userCtrl.authentifyUser);
 /* delete a user account */
 router.delete('/users/:id', auth, userCtrl.deleteUser);
 
-/* get all users -- masked email */
+/* get all users -- masked data */
 router.get('/users', auth, userCtrl.getAllUsers);
 
-/* get one user -- masked email */
+/* get user's profile -- masked data security */
 router.get('/users/:id', auth, userCtrl.getUser);
-
-/* get user's profile */
-router.get('/users/:id/profile', auth, userCtrl.getProfile);
 
 module.exports = router;
