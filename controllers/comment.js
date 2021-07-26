@@ -1,43 +1,96 @@
-const Comment = require('../models/comment')
 const inputValidator = require('node-input-validator');
+
+/* import specific to sequelize-cli */
+const db = require('../models');
 
 /* create a comment */
 exports.createComment = (req, res, next) => {
-    const validInput = new inputValidator.Validator(postObject, {
+    const validInput = new inputValidator.Validator(req.body, {
         content:'required|string|length:150' // match length with sql type
     });
-
+    console.log(typeof req.params.post_id);
     validInput.check()
     .then((matched) => {
         if (!matched) {
             res.status(400).send(validInput.errors);
         } else {
-            /* sql query INSERT INTO comments
-            const date = new Date();
-            const post =  {
-                userId: res.locals.userId,
-                postId: post.id,
-                body: req.body.content,
-                date: date, optionnel
-            }; */
-            res.status(201).json({ message: 'New comment created !' });
+            db.Post.findOne({ 
+                where: { id: req.params.post_id }
+            })
+            .then(post => {
+                console.log(typeof post.id);
+                db.Comment.create({
+                    content: req.body.content,
+                    UserId: res.locals.userId,
+                    PostId: post.id
+                })
+                .then(comment => res.status(200).json({ message: "Comment created!", comment_id: comment.id }))
+                .catch(error => res.status(400).json(error)); 
+            })
+            .catch(error => res.status(400).json({ error }));
         }
     })
-    .catch(errors => res.status(400).send(validInput.errors));
+    .catch(errors => res.status(500).send(validInput.errors));
 };
 
 /* delete a comment */
-exports.deletePost = (req, res, next) => {
+exports.deleteComment = (req, res, next) => {
 
-    /* sql query DROP
-    if ( post.userId == res.locals.userId || comment.userId == res.locals.userId || isAdmin === true ) {
+    /* check if logged user is admin */
+    db.User.findOne({
+        where: { id: res.locals.userId}
+    })
+    .then( user => {
+        if (user.isAdmin) {
+            db.Comment.destroy({ 
+                where: { id: req.params.comment_id }
+            })
+            .then(() => res.status(200).json({ message: 'Comment deleted !' }))
+            .catch(error => res.status(400).json({ error }));
+        } else {
 
-    }
-     */
+            /* check if logged user is comment writer */
+            db.Comment.findOne({ 
+                where: { id: req.params.comment_id }
+            })
+            .then(comment => {
+                if (comment.UserId == res.locals.userId) {
+                    db.Comment.destroy({ 
+                        where: { id: req.params.comment_id }
+                    })
+                    .then(() => res.status(200).json({ message: 'Comment deleted !' }))
+                    .catch(error => res.status(400).json({ error }));
+                } else {
+
+                    /* check if logged user is the post writer */
+                    db.Post.findOne({
+                        where: { id: comment.post_id }
+                    })
+                    .then(post => {
+                        if (post.UserId == res.locals.userId) {
+                            db.Comment.destroy({ 
+                                where: { id: req.params.comment_id }
+                            })
+                            .then(() => res.status(200).json({ message: 'Comment deleted !' }))
+                            .catch(error => res.status(400).json({ error }));
+                        } else {
+                            return res.status(401).json({ error: "Access denied!" });
+                        }
+                    })
+                    .catch(error => res.status(404).json(error));   
+                } 
+            })
+            .catch(error => res.status(500).json({ error }));
+        }
+    })
+    .catch(error => res.status(500).json(error));
 };
 
-/* returns all comments for GET requests */
-exports.getAllComents = (req, res, next) => {
-    
-    /* sql query SELECT * FROM comments */
+/* get a posts' comments */
+exports.getAllComments = (req, res, next) => {
+    db.Comment.findAll({
+        where: { post_id: req.params.post_id }
+    })
+    .then(comments => res.status(200).json(comments))
+    .catch(error => res.status(404).json(error));
 };

@@ -5,6 +5,7 @@ const env = require('dotenv').config();
 /* import the posts and user CRUD routers */
 const postRoutes = require('./routes/post');
 const userRoutes = require('./routes/user');
+const commentRoutes = require('./routes/comment');
 
 /* create an express app*/
 const app = express();
@@ -57,7 +58,7 @@ app.use(bodyParser.json());
 
 /* use the routers for posts and authentification requests*/
 app.use('/api/posts', postRoutes);
-/*app.use('/api/posts/:post_id', commentRoutes);*/
+app.use('/api/posts', commentRoutes);
 app.use('/api/auth', userRoutes); 
 
 module.exports = app; // on exporte l'app pour pouvoir y accéder depuis le reste du projet
