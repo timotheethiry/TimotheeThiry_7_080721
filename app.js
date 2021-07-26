@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const env = require('dotenv').config();
 
 /* import the posts and user CRUD routers */
-const postsRoutes = require('./routes/post');
+const postRoutes = require('./routes/post');
 const userRoutes = require('./routes/user');
 
 /* create an express app*/
@@ -55,8 +55,9 @@ app.use(bodyParser.json());
     // Then sends a quit packet to the MySQL server.
 });*/
 
-/* use the routers for posts and authentification requests
-app.use('/api/posts', postsRoutes);*/
+/* use the routers for posts and authentification requests*/
+app.use('/api/posts', postRoutes);
+/*app.use('/api/posts/:post_id', commentRoutes);*/
 app.use('/api/auth', userRoutes); 
 
 module.exports = app; // on exporte l'app pour pouvoir y accéder depuis le reste du projet

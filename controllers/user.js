@@ -37,8 +37,7 @@ exports.createUser = (req, res, next) => {
                 })
                 .catch(error => res.status(500).json({ error }));
             } else {
-                console.log('Invalid password'); 
-                next();
+                return res.status(400).json({ error: 'Invalid password' }); 
             }
         }
     })
@@ -98,7 +97,7 @@ exports.authentifyUser = (req, res, next) => {
 /* search existing user, check user is the account owner, delete account */  
 exports.deleteUser = (req, res, next) => {
     db.User.findOne({ 
-        where: { id: req.params.id }
+        where: { id: req.params.user_id }
     })
     .then( user => {
         if (!user) {
@@ -106,12 +105,12 @@ exports.deleteUser = (req, res, next) => {
         }
         if ( user.id == res.locals.userId ) {
             db.User.destroy({ 
-                where: { id: req.params.id }
+                where: { id: req.params.user_id }
             })
             .then(() => res.status(200).json({ message: 'User account deleted !' }))
             .catch(error => res.status(400).json({ error }));
         } else {
-            return res.status(401).json({ error: "Acces denied!" });
+            return res.status(401).json({ error: "Access denied!" });
         }
     })
     .catch(error => res.status(500).json({ error }));
@@ -127,22 +126,22 @@ exports.getAllUsers = (req, res, next) => {
             users.email = "xxxx.xxx@gmail.com";
             users.password = "Secret";
         });
-        res.status(200).json(users)
+        res.status(200).json(users);
     })
     .catch(error => res.status(404).json({ error }));
 };
 
 /* if user is legit return the profile */
 exports.getUser = (req, res, next) => {
-    if (req.params.id == res.locals.userId) {
+    if (req.params.user_id == res.locals.userId) {
         db.User.findOne({ 
-            where: { id: req.params.id }
+            where: { id: req.params.user_id }
         })
         .then(user => res.status(200).json(user))
         .catch(error => res.status(404).json({ error }));
     } else {
         db.User.findOne({ 
-            where: { id: req.params.id }
+            where: { id: req.params.user_id }
         })
         .then(user => {
             user.prenom = "xxxx";

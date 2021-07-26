@@ -8,13 +8,13 @@ const multer = require('../middleware/multer');
 router.post('/', auth, multer, postCtrl.createPost);
 
 /* modify a post */
-router.post('/', auth, multer, postCtrl.modifyPost);
+router.put('/:post_id', auth, multer, postCtrl.modifyPost);
 
 /* delete a post */
-router.delete('/:id', auth, postCtrl.deletePost);
+router.delete('/:post_id', auth, postCtrl.deletePost);
 
 /* get one post */
-router.get('/:id', auth, postCtrl.getOnePost);
+router.get('/:post_id', auth, postCtrl.getOnePost);
 
 /* get all posts */
 router.get('/', auth, postCtrl.getAllPosts);

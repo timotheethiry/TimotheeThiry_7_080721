@@ -11,12 +11,12 @@ router.post('/signup', userCtrl.createUser);
 router.post('/login', userCtrl.authentifyUser);
 
 /* delete a user account */
-router.delete('/users/:id', auth, userCtrl.deleteUser);
+router.delete('/users/:user_id', auth, userCtrl.deleteUser);
 
 /* get all users -- masked data */
 router.get('/users', auth, userCtrl.getAllUsers);
 
 /* get user's profile -- masked data security */
-router.get('/users/:id', auth, userCtrl.getUser);
+router.get('/users/:user_id', auth, userCtrl.getUser);
 
 module.exports = router;
