@@ -47,8 +47,6 @@ exports.createUser = (req, res, next) => {
 /* input validation, search existing user, compare send PW with saved PW, return user details for legit use */
 exports.authentifyUser = (req, res, next) => {
     const validInput = new inputValidator.Validator(req.body, {
-        prenom: 'required|string|length:50',
-        nom: 'required|string|length:50',
         email: 'required|email|length:100',
         password: 'required'
     });

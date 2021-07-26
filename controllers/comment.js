@@ -64,7 +64,7 @@ exports.deleteComment = (req, res, next) => {
 
                     /* check if logged user is the post writer */
                     db.Post.findOne({
-                        where: { id: comment.post_id }
+                        where: { id: req.params.post_id }
                     })
                     .then(post => {
                         if (post.UserId == res.locals.userId) {
