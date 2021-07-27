@@ -1,10 +1,36 @@
 <template>
-  <div id="nav">
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </div>
-  <router-view/>
+  <div id="app">
+    <header class="header">
+        <div class="header__container">
+            <img class="header__logo" src="../src/assets/icon-left-font.png" alt="Gropomania logo">
+            <img class="header__logo--small" src="../src/assets/icon.png" alt="Gropomania logo">
+        </div>
+        <router-link to="/">Home</router-link>
+        <router-link to="/auth">Auth</router-link>
+        <router-link to="/post">Post</router-link>
+
+        <nav class="header__container">
+            <ul class="header__ul">
+                <a href="index.html"><li class="header__li">Se déconnecter<span class="fas fa-power-off"></span></li></a>
+            </ul>
+        </nav>
+    </header>
+    <router-view />
+  </div>  
 </template>
+
+<script>
+
+export default {
+  name: 'App',
+  data() {
+    return {
+      logoHeader: "",
+      logoHeaderSmall: ""
+    }
+  }
+}
+</script>
 
 <style lang="scss">
 #app {
@@ -15,16 +41,33 @@
   color: #2c3e50;
 }
 
-#nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
+.header {
+    height: 100px;
+    display: flex;
+    align-items: center;
+    &__container {
+        width: 50%;
     }
-  }
+    &__logo {
+        margin: 0 auto;
+        width: 300px;
+        height: 100px;
+        object-fit: cover;
+    }
+    &__logo--small {
+        display: none;
+        margin: 0 auto;
+        width: 60px;
+        height: 60px;
+    }
+    &__ul {
+        display: flex;
+        justify-content: center;
+    }
+    &__li {
+        width: 100px;
+        text-align: center;
+    }
 }
+
 </style>

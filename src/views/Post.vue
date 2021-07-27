@@ -5,26 +5,29 @@
         </div>
 
         <div class="posts">
-            <h1 class="posts__heading">Lorem ipsum dolor sit amet.</h1>
-            <newPost />
-            <postList />
+            <Posted />
         </div>
     </section>
 </template>
 
 <script>
-// @ is an alias to /src
-import newPost from '@/components/newPost.vue'
+
 import userProfile from '@/components/userProfile.vue'
-import postList from '@/components/postList.vue'
+import Posted from '@/components/posted.vue'
 
 export default {
-  name: 'Home',
-  components: {
-    newPost,
-    userProfile,
-    postList
-  }
+    name: 'Post',
+    components: {
+        Posted,
+        userProfile
+    },
+    data() {
+        return {
+            post: {},
+            postInfo: "",
+            toModify: false,
+        }
+    },
 }
 </script> 
 
