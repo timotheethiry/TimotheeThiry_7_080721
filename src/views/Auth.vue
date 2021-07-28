@@ -1,30 +1,35 @@
 <template>
-
+        <a @click="signupForm"><li class="header__li">S'inscrire</li></a>
+        <a @click="loginForm"><li class="header__li">Se connecter</li></a>
     <div class="auth__container">
-        <form action="" method="post">
-            <div v-if="endpoint == '/signup'">
-                <h1 class="auth__heading">Rejoignez-nous !</h1>
+        <div v-if="endpoint == '/signup'">
+            <form @submit.prevent="postSignup">
+                    <h1 class="auth__heading">Rejoignez-nous !</h1>
 
-                <label for="prenom">Prénom</label>
-                <input class="form__control" type="text" name="prenom" id="prenom" v-model="prenom" required>
-                <label for="nom" >Nom</label>
-                <input class="form__control" type="text" name="nom" id="nom" v-model="nom" required>
-                <label for="email">Email</label>
-                <input class="form__control" type="email" name="email" id="email" v-model="email" placeholder=" utilisateur@domaine.com" pattern="[a-zA-Z0-9][a-zA-Z0-9_\-\.]*@[a-zA-Z0-9][a-zA-Z0-9_\-\.]*\.[a-zA-Z]{2,5}" maxlength="100" required>
-                <label for="password">Mot de passe</label>
-                <input class="form__control" type="password" name="password" id="password" v-model="password" required>
-                <button class="form__button" @click="postSignup">Bouton</button>
-            </div>
-            <div v-else>
+                    <label for="prenom">Prénom</label>
+                    <input class="form__control" type="text" name="prenom" id="prenom" v-model="prenom" required>
+                    <label for="nom" >Nom</label>
+                    <input class="form__control" type="text" name="nom" id="nom" v-model="nom" required>
+                    <label for="email">Email</label>
+                    <input class="form__control" type="email" name="email" id="email" v-model="email" placeholder=" utilisateur@domaine.com" pattern="[a-zA-Z0-9][a-zA-Z0-9_\-\.]*@[a-zA-Z0-9][a-zA-Z0-9_\-\.]*\.[a-zA-Z]{2,5}" maxlength="100" required>
+                    <label for="password">Mot de passe</label>
+                    <input class="form__control" type="password" name="password" id="password" v-model="password" required>
+                    <button type="submit" class="form__button">Bouton</button>
+            </form>
+        </div>
+        
+        <div v-else>
+            <form @submit.prevent="postLogin">
                 <h1 class="auth__heading">Ravis de vous revoir !</h1>
 
                 <label for="email">Email</label>
-                <input class="form__control" type="email" name="email" id="email" v-model="email" placeholder=" utilisateur@domaine.com" pattern="[a-zA-Z0-9][a-zA-Z0-9_\-\.]*@[a-zA-Z0-9][a-zA-Z0-9_\-\.]*\.[a-zA-Z]{2,5}" maxlength="100" required>
+                <input class="form__control" type="email" name="email" id="email" v-model="email" placeholder="utilisateur@domaine.com" pattern="[a-zA-Z0-9][a-zA-Z0-9_\-\.]*@[a-zA-Z0-9][a-zA-Z0-9_\-\.]*\.[a-zA-Z]{2,5}" maxlength="100" required>
                 <label for="password">Mot de passe</label>
                 <input class="form__control" type="password" name="password" id="password" v-model="password" required>
-                <button class="form__button" @click="postLogin">Bouton</button>
-            </div>
-        </form>
+                <button type="submit" class="form__button">Bouton</button>
+            </form>
+        </div>
+
     </div>
 
 </template>
@@ -38,7 +43,7 @@ export default {
         return {
             endpoint: "",
             uri: "http://localhost:3000/api/auth",
-            api: "localhost",
+            api: "",
             prenom: "",
             nom: "",
             email: "",
@@ -65,11 +70,8 @@ export default {
             })
             .then(function(result) {
                 if (result.ok) {
-                return result.json();
+                    return result.json();
                 }
-            })
-            .then(() => { 
-                location.href="home.html"; 
             })
             .catch(() => {
                 alert("There was a server issue, account creation failed !");
@@ -84,13 +86,17 @@ export default {
                 },
                 body: JSON.stringify({'email': this.email, 'password': this.password})
             })
-            .then(function(result) {
+            .then(result => {
                 if (result.ok) {
-                return result.json();
+                    return result.json();
                 }
             })
+            .then(value => {
+                const userToken = value.token;
+                localStorage.setItem("token", userToken);
+            })
             .then(() => { 
-                location.href="home.html"; 
+                this.$router.push("/");
             })
             .catch(() => {
                 console.log("There was a server issue, connexion failed !");
