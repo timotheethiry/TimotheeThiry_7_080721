@@ -18,7 +18,12 @@ export default {
                 avatar: "fas fa-user-tie"
             }
         }
-    }
+    },
+    methods: {
+        deleteConfirm() {
+            confirm("Vous voulez vraiment nous quitter ? 😢");
+        }
+    },
 }
 </script>
 

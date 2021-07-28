@@ -99,7 +99,8 @@ export default {
                 this.$router.push("/");
             })
             .catch(() => {
-                console.log("There was a server issue, connexion failed !");
+                localStorage.removeItem("token"); // if request fails, remove any possible user token
+                alert("There was a server issue, connexion failed !");
             });
         }
     }
