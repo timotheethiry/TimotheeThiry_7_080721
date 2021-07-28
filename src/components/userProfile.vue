@@ -1,8 +1,9 @@
 <template>
     <div class="user__profile">
         <span class="user__avatar"><img src="" alt="User avatar"></span>
-        <p class="user__name"> {{ user.name }} </p>
-        <p class="user__email"> {{user.email }} </p>
+        <p class="user__name"> Prénom : {{ user.prenom }} {{ user.nom }} </p>
+        <p class="user__name"> Nom :{{ user.nom }} </p>
+        <p class="user__email"> Email : {{user.email }} </p>
         <button @click="deleteConfirm" class="user__delete"><span class="fas fa-trash-alt"></span>Supprimer mon compte</button>
     </div>
 </template>
@@ -12,18 +13,36 @@ export default {
     name: 'userProfile',
     data() {
         return {
-            user: {
-                name: "John Smith",
-                email: "john.smith@gmail.com",
-                avatar: "fas fa-user-tie"
-            }
+            user: {}
         }
     },
     methods: {
         deleteConfirm() {
             confirm("Vous voulez vraiment nous quitter ? 😢");
+        },
+        getToken() {
+            return localStorage.getItem('token');
+        },
+        getUserId() {
+            return localStorage.getItem('user_id');
         }
     },
+    created() {
+        const token = this.getToken();
+        const user_id = this.getUserId();
+        const uri = "http://localhost:3000/api/auth/users/";
+        const api = uri + user_id
+        const authValue = 'Bearer ' + token;
+        fetch(api, {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': authValue
+            }
+        })
+        .then(res => res.json())
+        .then((json) => {this.user = json});
+    }
 }
 </script>
 

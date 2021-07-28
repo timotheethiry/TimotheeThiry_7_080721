@@ -93,7 +93,9 @@ export default {
             })
             .then(value => {
                 const userToken = value.token;
+                const user_id = value.user_id;
                 localStorage.setItem("token", userToken);
+                localStorage.setItem("user_id", user_id);
             })
             .then(() => { 
                 this.$router.push("/");
