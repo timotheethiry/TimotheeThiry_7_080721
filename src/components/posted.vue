@@ -28,7 +28,7 @@ export default {
         return {
             post: {},
             postInfo: "",
-            toModify: false,
+            toModify: false
         }
     },
     methods: {
