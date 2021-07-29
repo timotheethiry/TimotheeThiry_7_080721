@@ -22,7 +22,7 @@ exports.createPost = (req, res, next) => {
                 UserId: res.locals.userId,
                 title: postObject.title,
                 content: postObject.content,
-                date_issue: postObject.date_issue,
+                date_issue: date,
                 image_url: null //`${req.protocol}://${req.get('host')}/images/${req.file.filename}`, 
             })
             .then(post => res.status(201).json({ message: 'New post created !', post_id: post.id }))
