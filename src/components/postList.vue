@@ -6,19 +6,22 @@
                 <p class="post__details"> {{ post.writer.prenom }} {{ post.writer.nom }} || {{ post.date_issue }} </p>
                 <p class="post__content"> {{ post.content }} </p>
                 <button class="post__button" @click="modifyPost">Modifier l'article</button> <!--show button if logged user is writer-->
-                <button>Supprimer le post</button>
-                <div class="newPost">
+                <button @click="deletePost(post)">Supprimer le post</button>
+                
+                <div class="newComment">
                     <input class="newComment" type="text" max="150" name="comment" id="comment" v-model="newComment.content">
                     <button class="newPost__button" @click="postComment(post)">Post a comment<span class="fas fa-paper-plane"></span></button>
                 </div>
+                
                 <div class="comment" v-if="post.comments.length > 0">
                     <div v-for="comment in post.comments" :key="comment.id" class="comment__item">
                         <p class="comment__details"> {{comment.writer.prenom }} {{ comment.writer.nom }} || {{ comment.createdAt }} </p>
                         <p class="comment__content"> {{ comment.content }} </p>
-                        <button>Supprimer le commentaire</button>
+                        <button @click="deleteComment(comment)">Supprimer le commentaire</button>
                     </div>
                 </div> 
             </div>
+
             <div v-if="toModify" class="post"> <!-- bind  to post.id -->
                 <h2 class="post__subheading">Vous avez fait une faute d'orthographe ? On va rectifier ça 😉</h2>
                 
@@ -33,6 +36,7 @@
 </template>
 
 <script>
+
     export default {
         name: 'PostList',
         data() {
@@ -48,6 +52,44 @@
         methods: {
             getToken() {
                 return localStorage.getItem('token');
+            },
+            update() {
+                this.$forceUpdate();
+            },
+            deletePost(post) {
+                const post_id = post.id;
+                const uri = "http://localhost:3000/api/posts/";
+                const api = uri + post_id;
+                const token = this.getToken();
+                const authValue = 'Bearer ' + token;
+                fetch(api, {
+                    method: "DELETE",
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': authValue
+                    }
+                })
+                .then(res => res.json())
+                .then(() => { location.reload(); });
+            },
+            deleteComment(comment) {
+                const comment_id = comment.id;
+                const post_id = comment.PostId;
+                const uri = "http://localhost:3000/api/posts/";
+                const api = uri + post_id + "/comments/" + comment_id;
+                const token = this.getToken();
+                const authValue = 'Bearer ' + token;
+                fetch(api, {
+                    method: "DELETE",
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': authValue
+                    }
+                })
+                .then(res => res.json())
+                .then(() => { location.reload(); });
             },
             modifyPost() {
                 if (this.toModify == false) {
@@ -71,7 +113,8 @@
                     },
                     body: JSON.stringify({'content': this.newComment.content })
                 })
-                .then(res => res.json());
+                .then(res => res.json())
+                .then(() => { location.reload(); });
             },
 
             /* loop through the posts array, request the post writer details, append post object propriety 'writer', 
@@ -101,7 +144,7 @@
                 this.posts.forEach(post => {
                     const post_id = post.id;
                     const uri = "http://localhost:3000/api/posts/";
-                    const api = uri + post_id + "/" + "comments";
+                    const api = uri + post_id + "/comments";
                     fetch(api, {
                         headers: {
                             'Accept': 'application/json',
@@ -155,7 +198,6 @@
                 this.getComments(authValue);
             });
         }
-        // trier les posts par date de publication
         // donner au logged user la possibilité de put et delete son post, et à admin le droit de delete les comments
         // gestion des images, quand on crée un post possibilité ajouter ou non une image
     };
