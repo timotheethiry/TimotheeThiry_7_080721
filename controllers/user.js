@@ -142,8 +142,6 @@ exports.getUser = (req, res, next) => {
             where: { id: req.params.user_id }
         })
         .then(user => {
-            user.prenom = "xxxx";
-            user.nom = "xxxx";
             user.email = "xxxx.xxx@gmail.com";
             user.password = "Secret";
             res.status(200).json(user);

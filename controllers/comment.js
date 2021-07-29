@@ -89,7 +89,7 @@ exports.deleteComment = (req, res, next) => {
 /* get a posts' comments */
 exports.getAllComments = (req, res, next) => {
     db.Comment.findAll({
-        where: { post_id: req.params.post_id }
+        where: { PostId: req.params.post_id }
     })
     .then(comments => res.status(200).json(comments))
     .catch(error => res.status(404).json(error));
