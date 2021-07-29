@@ -1,18 +1,49 @@
 <template>
     <div class="newPost">
         <h2 class="newPost__subheading">Faites parler votre clavier</h2>
-
-        <input class="newPost__title" type="text" max="150" name="title" id="title">
-        <textarea class="newPost__content" type="textarea" name="content" id="content" rows="3" cols="100" placeholder="Quoi de neuf ?"></textarea>
+        {{ date }}
+        <input class="newPost__title" v-model="body.title" type="text" max="150" name="title" id="title" >
+        <textarea class="newPost__content" v-model="body.content" type="textarea" name="content" id="content" rows="3" cols="100" max="2000" placeholder="Quoi de neuf ?"></textarea>
         
         <button class="newPost__button newPost__button--addImage">Ajouter une image</button>
-        <button class="newPost__button">Post<span class="fas fa-paper-plane"></span></button>
+        <button class="newPost__button" @click="newPost">Post<span class="fas fa-paper-plane"></span></button>
     </div>
 </template>
 
 <script>
 export default {
-    name: 'newPost'
+    name: 'newPost',
+    data() {
+        return {
+            body: {
+                title: "",
+                content: ""
+            },
+        }
+    },
+    
+    methods: {
+        getToken() {
+            return localStorage.getItem('token');
+        },
+        newPost() {
+            //const today = new Date();
+            const uri = "http://localhost:3000/api/posts/";
+            const token = this.getToken();
+            const authValue = 'Bearer ' + token;
+            fetch(uri, {
+                method: "POST",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': authValue
+                },
+                body: JSON.stringify({'title': this.body.title, 'content': this.body.content })
+            })
+            .then(res => res.json())
+            .then(() => { location.reload(); });
+        },
+    }
 }
 </script>
 
