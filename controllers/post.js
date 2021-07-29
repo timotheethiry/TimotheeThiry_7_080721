@@ -139,7 +139,11 @@ exports.getOnePost = (req, res, next) => {
 
 /* select a specific post for GET requests */
 exports.getAllPosts = (req, res, next) => {
-    db.Post.findAll()
+    db.Post.findAll({
+        order: [
+            ['createdAt', 'DESC']
+        ]
+    })
     .then(posts => res.status(200).json(posts))
     .catch(error => res.status(404).json(error));
 }; 
