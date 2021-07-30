@@ -6,7 +6,7 @@ const db = require('../models');
 /* create a comment */
 exports.createComment = (req, res, next) => {
     const validInput = new inputValidator.Validator(req.body, {
-        content:'required|string|length:150' // match length with sql type
+        content:'required|string|length:255' // match length with sql type
     });
     console.log(typeof req.params.post_id);
     validInput.check()
