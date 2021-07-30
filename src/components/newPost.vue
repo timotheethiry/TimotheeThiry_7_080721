@@ -1,50 +1,64 @@
 <template>
     <div class="newPost">
         <h2 class="newPost__subheading">Faites parler votre clavier</h2>
-        {{ date }}
-        <input class="newPost__title" v-model="body.title" type="text" max="150" name="title" id="title" >
-        <textarea class="newPost__content" v-model="body.content" type="textarea" name="content" id="content" rows="3" cols="100" max="2000" placeholder="Quoi de neuf ?"></textarea>
-        
+        <input class="newPost__title" v-model="title" type="text" max="150" name="title" id="title" >
+        <textarea class="newPost__content" v-model="content" type="textarea" name="content" id="content" rows="3" cols="100" max="2000" placeholder="Quoi de neuf ?"></textarea>
+        <span v-if="errors.title">{{ errors.title }}</span>
+        <span v-if="errors.content">{{ errors.content }}</span>
+
+        <!-- handle image -->
         <button class="newPost__button newPost__button--addImage">Ajouter une image</button>
         <button class="newPost__button" @click="newPost">Post<span class="fas fa-paper-plane"></span></button>
     </div>
 </template>
 
 <script>
-export default {
-    name: 'newPost',
-    data() {
-        return {
-            body: {
+    export default {
+        name: 'newPost',
+        data() {
+            return {
                 title: "",
-                content: ""
+                content: "",
+                errors: {}
+            }
+        },
+        methods: {
+            getToken() {
+                return localStorage.getItem('token');
             },
+            newPost() {
+                const uri = "http://localhost:3000/api/posts/";
+                const token = this.getToken();
+                const authValue = 'Bearer ' + token;
+                fetch(uri, {
+                    method: "POST",
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': authValue
+                    },
+                    body: JSON.stringify({'title': this.title, 'content': this.content })
+                })
+                .then(res => res.json())
+                .then(() => { location.reload(); });
+            },
+            validatePost(value, title, name, max) {
+                if(value.length > max ) {
+                    this.errors[name] = 'Le '+title+' doit faire moins de '+max+' caractères';
+                } else {
+                    this.errors[name] = '';
+                }
+            }
+        },
+        watch: {
+            title(newValue) {
+                this.validatePost(newValue, 'titre', 'title', 150);
+            },
+            content(newValue) {
+                this.validatePost(newValue, 'contenu', 'content', 2000);
+            }
         }
-    },
-    
-    methods: {
-        getToken() {
-            return localStorage.getItem('token');
-        },
-        newPost() {
-            //const today = new Date();
-            const uri = "http://localhost:3000/api/posts/";
-            const token = this.getToken();
-            const authValue = 'Bearer ' + token;
-            fetch(uri, {
-                method: "POST",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'Authorization': authValue
-                },
-                body: JSON.stringify({'title': this.body.title, 'content': this.body.content })
-            })
-            .then(res => res.json())
-            .then(() => { location.reload(); });
-        },
     }
-}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

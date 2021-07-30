@@ -5,13 +5,14 @@
                 <h3 class="post__title"> {{ post.title }} </h3>
                 <p class="post__details"> {{ post.writer.prenom }} {{ post.writer.nom }} || {{ post.date_issue }} </p>
                 <p class="post__content"> {{ post.content }} </p>
-                <button class="post__button" @click="modifyPost">Modifier l'article</button> <!--show button if logged user is writer-->
+                <button class="post__button" @click="showUpdate">Modifier l'article</button> <!--show button if logged user is writer-->
                 <button @click="deletePost(post)">Supprimer le post</button>
                 
                 <div class="newComment">
-                    <input class="newComment" type="text" max="150" name="comment" id="comment" v-model="newComment.content">
+                    <input class="newComment" type="text" max="255" name="comment" id="comment" v-model="commentContent">
                     <button class="newPost__button" @click="postComment(post)">Post a comment<span class="fas fa-paper-plane"></span></button>
-                </div>
+                    <span v-if="errors.commentContent">{{ errors.commentContent }}</span>
+                </div> 
                 
                 <div class="comment" v-if="post.comments.length > 0">
                     <div v-for="comment in post.comments" :key="comment.id" class="comment__item">
@@ -25,11 +26,14 @@
             <div v-if="toModify" class="post"> <!-- bind  to post.id -->
                 <h2 class="post__subheading">Vous avez fait une faute d'orthographe ? On va rectifier ça 😉</h2>
                 
-                <input class="modify-post__title" type="text" max="150" name="title" id="title" :placeholder="post.title">
-                <textarea class="modify-post__content" type="textarea" name="content" id="content" rows="3" cols="100" :placeholder="post.content"></textarea>
-                
-                <button class="modify__button">Modify post</button>
-                <button class="modify__button modify__button--cancel" @click="modifyPost">Annuler</button>
+                <input class="modify-post__title" v-model="modifiedPostTitle" type="text" max="150" name="title" id="title"  :placeholder="post.title">
+                <textarea class="modify-post__content" v-model="modifiedPostContent" type="textarea" name="content" id="content" rows="3" cols="100" :placeholder="post.content"></textarea>
+    
+                <button class="modify__button" @click="modifyPost(post)">Modify post</button>
+                <button class="modify__button modify__button--cancel" @click="showUpdate">Annuler</button>
+
+                <span v-if="errors.modifiedPostTitle">{{ errors.modifiedPostTitle }}</span>
+                <span v-if="errors.modifiedPostContent">{{ errors.modifiedPostContent }}</span>
             </div>
         </div>        
     </div>
@@ -44,9 +48,10 @@
                 posts: [],
                 postInfo: "",
                 toModify: false,
-                newComment: {
-                    content: ""
-                }
+                commentContent: "",
+                modifiedPostTitle: "",
+                modifiedPostContent: "",
+                errors: {}
             }
         },
         methods: {
@@ -91,12 +96,34 @@
                 .then(res => res.json())
                 .then(() => { location.reload(); });
             },
-            modifyPost() {
+            showUpdate() {
                 if (this.toModify == false) {
                     this.toModify = true;
                 } else {
                     this.toModify = false;
                 }
+            },
+            modifyPost(post) {
+                const post_id = post.id;
+                const uri = "http://localhost:3000/api/posts/";
+                const api = uri + post_id;
+                const token = this.getToken();
+                const authValue = 'Bearer ' + token;
+                fetch(api, {
+                    method: "PUT",
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': authValue
+                    },
+                    body: JSON.stringify({'title': this.modifiedPostTitle, 'content': this.modifiedPostContent })
+                })
+                .then(res => res.json())
+                .then(value => {
+                    if (value.message === "Post modified !") {
+                        location.reload();
+                    }
+                });
             },
             postComment(post) {
                 const post_id = post.id;
@@ -111,7 +138,7 @@
                         'Content-Type': 'application/json',
                         'Authorization': authValue
                     },
-                    body: JSON.stringify({'content': this.newComment.content })
+                    body: JSON.stringify({'content': this.commentContent })
                 })
                 .then(res => res.json())
                 .then(() => { location.reload(); });
@@ -180,6 +207,24 @@
                     comment.writer = value; 
                 });
             },
+            validateInput(value, title, name, max) {
+                if(value.length > max ) {
+                    this.errors[name] = 'Le '+title+' doit faire moins de '+max+' caractères';
+                } else {
+                    this.errors[name] = '';
+                }
+            }
+        },
+        watch: {
+            commentContent(newValue) {
+                this.validateInput(newValue, 'contenu', 'commentContent', 255);
+            },
+            modifiedPostTitle(newValue) {
+                this.validateInput(newValue, 'titre', 'modifiedPostTitle', 255);
+            },
+            modifiedPostContent(newValue) {
+                this.validateInput(newValue, 'contenu', 'modifiedPostContent', 2000);
+            }
         },
         created() {
             const token = this.getToken();
