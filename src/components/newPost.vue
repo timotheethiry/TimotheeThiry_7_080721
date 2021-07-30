@@ -1,14 +1,23 @@
 <template>
     <div class="newPost">
         <h2 class="newPost__subheading">Faites parler votre clavier</h2>
-        <input class="newPost__title" v-model="title" type="text" max="150" name="title" id="title" >
-        <textarea class="newPost__content" v-model="content" type="textarea" name="content" id="content" rows="3" cols="100" max="2000" placeholder="Quoi de neuf ?"></textarea>
-        <span v-if="errors.title">{{ errors.title }}</span>
-        <span v-if="errors.content">{{ errors.content }}</span>
+        <form ref="form" name="form">
+            <input class="newPost__title" v-model="title" type="text" max="150" name="title" id="title" >
+            <textarea class="newPost__content" v-model="content" type="textarea" name="content" id="content" rows="3" cols="100" max="2000" placeholder="Quoi de neuf ?"></textarea>
+            <span v-if="errors.title">{{ errors.title }}</span>
+            <span v-if="errors.content">{{ errors.content }}</span>
 
-        <!-- handle image -->
-        <button class="newPost__button newPost__button--addImage">Ajouter une image</button>
-        <button class="newPost__button" @click="newPost">Post<span class="fas fa-paper-plane"></span></button>
+            <!-- handle image -->
+            <div v-if="!image">
+                <label class="newPost__button newPost__button--addImage" for="file">Ajouter une image</label>
+                <input type="file" ref="file" id="file" @change="fileUpload" hidden>
+            </div>
+            <div v-else>
+                <img :src="this.file.name" />
+                <button @click="removeImage">Enlever l'image</button>
+            </div>
+            <button class="newPost__button" @click="newPost">Post<span class="fas fa-paper-plane"></span></button>
+        </form>
     </div>
 </template>
 
@@ -19,7 +28,9 @@
             return {
                 title: "",
                 content: "",
-                errors: {}
+                errors: {},
+                file:'',
+                showFileInput: false
             }
         },
         methods: {
@@ -30,17 +41,23 @@
                 const uri = "http://localhost:3000/api/posts/";
                 const token = this.getToken();
                 const authValue = 'Bearer ' + token;
-                fetch(uri, {
-                    method: "POST",
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'Authorization': authValue
-                    },
-                    body: JSON.stringify({'title': this.title, 'content': this.content })
-                })
-                .then(res => res.json())
-                .then(() => { location.reload(); });
+
+                if (this.file) {
+                    let formData = new FormData(this.$refs.form);
+                    //formData.append('title', this.title);
+                    //formData.append('content', this.content);
+                    //formData.append('file', this.file, this.title, this.content);
+                    fetch(uri, {
+                        method: "POST",
+                        headers: {
+                            //'Accept': 'multipart/form-data',
+                            //'Content-Type': 'multipart/form-data',
+                            'Authorization': authValue
+                        },
+                        body: formData
+                    })
+                    .then(res => res.json());
+                } 
             },
             validatePost(value, title, name, max) {
                 if(value.length > max ) {
@@ -48,6 +65,10 @@
                 } else {
                     this.errors[name] = '';
                 }
+            },
+            fileUpload() {
+                this.file = this.$refs.file.files[0];
+                console.log(this.file);
             }
         },
         watch: {
@@ -101,6 +122,7 @@
         height: 30px;
         &--addImage {
             background-color: #ff8080;
+            display: inline-box;
         }
     }
 }
