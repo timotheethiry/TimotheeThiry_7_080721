@@ -1,23 +1,24 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import Home from '../views/Home.vue'
 import Auth from '../views/Auth.vue'
-import Post from '../views/Post.vue'
 
-
+function requireAuth (to, from, next) {
+  if (!localStorage.getItem('token')) {
+    next({
+      path: '/auth',
+    query: { redirect: to.fullPath }
+    });
+  } else {
+    next();
+  }
+}
 
 const routes = [
   {
-    path: '/',
+    path: '/Home',
     name: 'Home',
-    component: Home
-  },
-  {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+    component: Home,
+    beforeEnter: requireAuth
   },
   {
     path: '/auth',
@@ -25,9 +26,9 @@ const routes = [
     component: Auth
   },
   {
-    path: '/post',
-    name: 'Post',
-    component: Post
+    path: '',
+    name: 'PublicPath',
+    beforeEnter: requireAuth
   }
 ]
 

@@ -1,6 +1,7 @@
 <template>
-        <a @click="signupForm"><li class="header__li">S'inscrire</li></a>
-        <a @click="loginForm"><li class="header__li">Se connecter</li></a>
+    <a @click="signupForm"><li class="header__li">S'inscrire</li></a>
+    <a @click="loginForm"><li class="header__li">Se connecter</li></a>
+
     <div class="auth__container">
         <div v-if="endpoint == '/signup'">
             <form @submit.prevent="postSignup">
@@ -42,21 +43,19 @@
                 <button type="submit" class="form__button" :disabled="isDisabled">Bouton</button>
             </form>
         </div>
-
     </div>
-
 </template>
 
 <script>
 // @ is an alias to /src
 
 export default {
-    name: 'Home',
+    name: 'Auth',
     data() {
         return {
-            endpoint: "",
+            endpoint: "/login",
             uri: "http://localhost:3000/api/auth",
-            api: "",
+            api: "http://localhost:3000/api/auth/login",
             prenom: "",
             nom: "",
             email: "",
@@ -88,6 +87,7 @@ export default {
                     return result.json();
                 }
             })
+            .then(() => { alert("Account created. Please login to your account.")})
             .catch(() => {
                 alert("There was a server issue, account creation failed !");
             });
@@ -111,9 +111,7 @@ export default {
                 const user_id = value.user_id;
                 localStorage.setItem("token", userToken);
                 localStorage.setItem("user_id", user_id);
-            })
-            .then(() => { 
-                this.$router.push("/");
+                this.$router.push("/Home");
             })
             .catch(() => {
                 localStorage.removeItem("token"); // if request fails, remove any possible user token

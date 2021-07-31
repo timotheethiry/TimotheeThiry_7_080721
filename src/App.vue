@@ -5,13 +5,10 @@
             <img class="header__logo" src="../src/assets/icon-left-font.png" alt="Gropomania logo">
             <img class="header__logo--small" src="../src/assets/icon.png" alt="Gropomania logo">
         </div>
-        <router-link to="/">Home</router-link>
-        <router-link to="/auth">Auth</router-link>
-        <router-link to="/post">Post</router-link>
 
         <nav class="header__container">
             <ul class="header__ul">
-                <a href="index.html"><li class="header__li">Se déconnecter<span class="fas fa-power-off"></span></li></a>
+                <a @click="logout"><li class="header__li">Se déconnecter<span class="fas fa-power-off"></span></li></a>
             </ul>
         </nav>
     </header>
@@ -27,6 +24,13 @@ export default {
     return {
       logoHeader: "",
       logoHeaderSmall: ""
+    }
+  },
+  methods: {
+    logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user_id');
+      this.$router.push("/auth");
     }
   }
 }
