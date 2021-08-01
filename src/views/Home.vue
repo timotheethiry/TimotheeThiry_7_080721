@@ -30,25 +30,44 @@ export default {
 
 <style scoped lang="scss">
 
-.main__container {
-    display: flex;
-    padding: 1rem;
-    background-color: #ffeeee;
-}
+    .main__container {
+        display: flex;
+        justify-content: space-evenly;
+        padding: 1rem;
+        background-color: #ffeeee;
+    }
 
-.user {
-    width: 20%;
-    height: 500px;
-    margin: 2.5rem 2rem 0 8rem;
-    background-color: #fff;
-    text-align: center;
-    box-shadow: 0px 0px 5px #bdbdbd;
-    position: relative;
-}
+    .user {
+        width: 40%;
+        max-width: 330px;
+        height: 500px;
+        margin: 0 1rem 0 0;
+        background-color: #fff;
+        text-align: center;
+        box-shadow: 0px 0px 5px #bdbdbd;
+        position: relative;
+    }
+        
+    .posts {
+        width: 60%;
+    }
 
-.posts {
-    width: 60%;
-    margin: auto;
-}
+    @media screen and (max-width: 700px) {
+
+        .main__container {
+            flex-direction: column;
+        }
+
+        .user {
+            width: 100%;
+            max-width: 330px;
+            margin: 0 auto;
+            height: max-content;
+        }
+
+        .posts {
+            width: 100%;
+        }
+    }
 
 </style>

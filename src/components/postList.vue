@@ -6,24 +6,24 @@
                 <p class="post__details"> {{ post.writer.prenom }} {{ post.writer.nom }} || {{ post.date_issue }} </p>
                 <p class="post__content"> {{ post.content }} </p>
                 <button class="post__button" @click="showUpdate">Modifier l'article</button> <!--show button if logged user is writer-->
-                <button @click="deletePost(post)">Supprimer le post</button>
+                <button class="post__button" @click="deletePost(post)">Supprimer l'article</button>
                 
                 <div class="newComment">
-                    <input class="newComment" type="text" max="255" name="comment" id="comment" v-model="commentContent">
-                    <button class="newPost__button" @click="postComment(post)">Post a comment<span class="fas fa-paper-plane"></span></button>
+                    <input class="newComment__content" type="text" max="255" name="comment" id="comment" v-model="commentContent" placeholder="Pour commenter c'est ici">
+                    <button class="post__button post__button--newComment" @click="postComment(post)">Poster un commentaire</button>
                     <span v-if="errors.commentContent">{{ errors.commentContent }}</span>
                 </div> 
                 
-                <div class="comment" v-if="post.comments.length > 0">
-                    <div v-for="comment in post.comments" :key="comment.id" class="comment__item">
-                        <p class="comment__details"> {{comment.writer.prenom }} {{ comment.writer.nom }} || {{ comment.createdAt }} </p>
-                        <p class="comment__content"> {{ comment.content }} </p>
-                        <button @click="deleteComment(comment)">Supprimer le commentaire</button>
+                <div class="comments" v-if="post.comments.length > 0">
+                    <div v-for="comment in post.comments" :key="comment.id" class="comments__item">
+                        <p class="comments__details"> {{comment.writer.prenom }} {{ comment.writer.nom }} || {{ comment.createdAt }} </p>
+                        <p class="comments__content"> {{ comment.content }} </p>
+                        <button class="post__button" @click="deleteComment(comment)">Supprimer le commentaire</button>
                     </div>
                 </div> 
             </div>
 
-            <div v-if="toModify" class="post"> <!-- bind  to post.id -->
+            <div v-if="toModify" class="post__item"> <!-- bind  to post.id -->
                 <h2 class="post__subheading">Vous avez fait une faute d'orthographe ? On va rectifier ça 😉</h2>
                 
                 <input class="modify-post__title" v-model="modifiedPostTitle" type="text" max="150" name="title" id="title"  :placeholder="post.title">
@@ -243,7 +243,7 @@
                 this.getComments(authValue);
             });
         }
-        // donner au logged user la possibilité de put et delete son post, et à admin le droit de delete les comments
+        //donner à admin le droit de delete les comments
         // gestion des images, quand on crée un post possibilité ajouter ou non une image
     };
 </script>
@@ -252,34 +252,55 @@
     .post {
         margin: 1rem 0;
         padding: 1rem 0 2rem;
-        //display: flex;
-        //flex-wrap: wrap;
-        //justify-content: space-around;
-        box-shadow: 0px 0px 5px #bdbdbd;
-        background-color: #f8f8f8;
         &__item {
+            width: auto;
             background-color: #fff;
             box-shadow: 0px 0px 5px #bdbdbd;
-            margin: 1rem;    
+            margin: 1rem 0;
+            padding: 1rem 1rem 1rem;    
         }
         &__title {
             font-weight: bold;
+            margin: 0;
+        }
+        &__button {
+            height: 30px;
+            margin: 0 1rem 1rem;
+            border: 2px solid #828282;
+            border-radius: 10px;
+            background-color: #fff;
+            cursor: pointer;
+            &--newComment {
+            margin: 1rem 1rem 0;
+            }
         }
     }
 
-    .comment {
+    .newComment {
+        text-align: left;
+        &__content {
+            height: 30px;
+            width: 95%;
+            max-width: 95%;
+            border: 1px solid #b2b2b2;
+            padding: 0 0 0 10px;
+        }
+    }
+
+    .comments {
+        width: 100%;
         margin: 1rem 0;
         padding: 1rem 0 2rem;
-        //display: flex;
-        //flex-wrap: wrap;
-        //justify-content: space-around;
-        //box-shadow: 0px 0px 5px #bdbdbd;
-        //background-color: #f8f8f8;
         &__item {
-            //background-color: #fff;
-            background-color: #f8f8f8;
-            box-shadow: 0px 0px 5px #bdbdbd;
-            margin: 1rem;    
+            width: 100%;
+            //margin: 1rem;  
+            //background-color: #f8f8f8;
+            //box-shadow: 0px 0px 5px #bdbdbd;
+            border-bottom: 1px solid #000;;
+            text-align: left;
+        }
+        &__details {
+            font-size: 14px;
         }
     }
 
@@ -307,6 +328,8 @@
         border-radius: 10px;
         background-color: #38e100;
         height: 30px;
+        cursor: pointer;
+
     }
 
     .modify__button--cancel {
