@@ -6,11 +6,9 @@
             <img class="header__logo--small" src="../src/assets/icon.png" alt="Gropomania logo">
         </div>
 
-        <nav class="header__container">
-            <ul class="header__ul">
-                <a @click="logout"><li class="header__li">Se déconnecter<span class="fas fa-power-off"></span></li></a>
-            </ul>
-        </nav>
+        <div v-if="isLogged" class="header__container">
+            <a @click="logout" class="header__link">Se déconnecter</a>
+        </div>
     </header>
     <router-view />
   </div>  
@@ -23,7 +21,8 @@ export default {
   data() {
     return {
       logoHeader: "",
-      logoHeaderSmall: ""
+      logoHeaderSmall: "",
+      isLogged: this.checklogged(),
     }
   },
   methods: {
@@ -31,47 +30,75 @@ export default {
       localStorage.removeItem('token');
       localStorage.removeItem('user_id');
       this.$router.push("/auth");
+    },
+    checklogged() {
+      const token = localStorage.getItem('token');
+      if (token) {
+        return this.isLogged = true;
+      } else {
+        return this.isLogged = false;
+      }
     }
   }
 }
 </script>
 
 <style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+  #app {
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
+    color: #2c3e50;
+  }
 
-.header {
-    height: 100px;
-    display: flex;
-    align-items: center;
-    &__container {
-        width: 50%;
-    }
-    &__logo {
-        margin: 0 auto;
-        width: 300px;
-        height: 100px;
-        object-fit: cover;
-    }
-    &__logo--small {
+  .header {
+      max-height: 100px;
+      display: flex;
+      align-items: center;
+      &__container {
+          width: 50%;
+      }
+      &__logo {
+          margin: 0 auto;
+          width: 300px;
+          height: 100px;
+          object-fit: cover;
+      }
+      &__logo--small {
+          display: none;
+          margin: 0 auto;
+          width: 60px;
+          height: 60px;
+      }
+      &__link {
+        &:hover {
+            cursor: pointer;
+            text-decoration: underline; 
+          }
+          &:active {
+              font-weight: bold;
+          }
+      }
+  }
+
+  @media screen and (max-width: 700px) {
+
+    .header {
+      display: block;
+      &__container {
+        width: 100%;
+      }
+      &__logo {
+          display: none;
+      }
+      &__logo--small {
+          display: block;
+      }
+      &__link {
         display: none;
-        margin: 0 auto;
-        width: 60px;
-        height: 60px;
+      }
     }
-    &__ul {
-        display: flex;
-        justify-content: center;
-    }
-    &__li {
-        width: 100px;
-        text-align: center;
-    }
-}
+  }
 
 </style>
