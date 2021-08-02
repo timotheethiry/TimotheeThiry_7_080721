@@ -109,6 +109,8 @@
                 .then(res => res.json())
                 .then(() => { location.reload(); });
             },
+
+            /* method to open/close the post modification div */
             showUpdate() {
                 if (this.toModify == false) {
                     this.toModify = true;
@@ -116,6 +118,8 @@
                     this.toModify = false;
                 }
             },
+
+            /* format the inputs data in form-data, send it to the back end, update the posts array */
             modifyPost(post) {
                 const post_id = post.id;
                 const uri = "http://localhost:3000/api/posts/";
@@ -186,15 +190,14 @@
                 .then((json) => { 
                     this.posts = json;
                 });
-            },
-            /* handle file input onChange event */
+            }
+            /* handle file input onChange event
             fileUpdate() {
                 this.modifiedFile = this.$refs.file2.files[0];
-                console.log(this.modifiedFile);
             },
             removeFile() {
                 this.modifiedFile = '';
-            }
+            }*/
         },
         watch: {
             commentContent(newValue) {
@@ -210,8 +213,6 @@
         created() {
             this.getAllPosts();
         }
-        //donner à admin le droit de delete les comments
-        // gestion des images, quand on crée un post possibilité ajouter ou non une image
     };
 </script>
 
