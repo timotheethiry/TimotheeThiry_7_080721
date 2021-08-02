@@ -4,15 +4,15 @@ const inputValidator = require('node-input-validator');
 /* import specific to sequelize-cli */
 const db = require('../models');
 
-/* create a post, convert the body request from form-data JS object */
+/* create a post, check the inputs, check if an image has been sent */
 exports.createPost = (req, res, next) => {
-    const postObject = req.body;
-    const validInput = new inputValidator.Validator(postObject, {
+    const image_url = req.file ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}` : null;
+    const validInput = new inputValidator.Validator(req.body, {
         title: 'required|string|length:150',
-        content:'required|string|length:2000' // match length with sql type text
+        content:'required|string|length:2000'
     });
 
-    validInput.check()
+    validInput.check() 
     .then((matched) => {
         if (!matched) {
             res.status(400).send(validInput.errors);
@@ -20,10 +20,10 @@ exports.createPost = (req, res, next) => {
             const date = new Date();
             db.Post.create({
                 UserId: res.locals.userId,
-                title: postObject.title,
-                content: postObject.content,
+                title: req.body.title,
+                content: req.body.content,
                 date_issue: date,
-                image_url: null //`${req.protocol}://${req.get('host')}/images/${req.file.filename}`, 
+                image_url: image_url,
             })
             .then(post => res.status(201).json({ message: 'New post created !', post_id: post.id }))
             .catch(error => res.status(400).json({ error }));
@@ -34,19 +34,11 @@ exports.createPost = (req, res, next) => {
 
 /* modify a post w/ or w/o an image */
 exports.modifyPost = (req, res, next) => {
-    const postObject = req.file ?
-    { 
-        ...JSON.parse(req.body.post),
-        image_url: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
-    } : { 
-        ...req.body // w/o the image the body is alreay an object JS it can't be parsed
-    };
-    const validInput = new inputValidator.Validator(postObject, {
+    const image_url = req.file ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}` : null;
+    const validInput = new inputValidator.Validator(req.body, {
         title: 'required|string|length:150',
         content:'required|string|length:2000' // match length with sql type text
     });
-
-    console.log(postObject);
 
     validInput.check()
     .then((matched) => {
@@ -59,10 +51,9 @@ exports.modifyPost = (req, res, next) => {
             .then(post => {
                 if ( post.UserId == res.locals.userId ) {
                     db.Post.update({ 
-                        title: postObject.title,
-                        content: postObject.content,
-                        image_url: postObject.image_url,
-                        date_issue: postObject.date_issue 
+                        title: req.body.title,
+                        content: req.body.content,
+                        image_url: image_url 
                     }, {
                         where: { id: req.params.post_id } 
                     })
@@ -140,6 +131,12 @@ exports.getOnePost = (req, res, next) => {
 /* select a specific post for GET requests */
 exports.getAllPosts = (req, res, next) => {
     db.Post.findAll({
+        include: [{
+            model: db.User
+        },
+        {
+            model: db.Comment, include: [{ model: db.User}]
+        }],
         order: [
             ['createdAt', 'DESC']
         ]

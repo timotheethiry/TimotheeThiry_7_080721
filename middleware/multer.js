@@ -1,23 +1,27 @@
 const multer = require('multer');
 
-/* traduction myme types to file extensions respectively */
-const MIME_TYPES  = {
-    'image/jpg': 'jpg',
-    'image/jpeg': 'jpg',
-    'image/png': 'png'
+/* file extensions output */
+const MIME_TYPES = {
+  'image/jpg': 'jpg',
+  'image/webp': 'webp',
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
 };
 
-/* set the storage location for files uploads, changes filename from 'xxx xxx' to 'xxx_xxx', add date into filename */
+/* image size limitation */
+const maxSize = 3 * 1280 * 1280;
+
+/* set the storage location for files uploads, remove spaces from filename, add date into filename */
 const storage = multer.diskStorage({
-    destination: (req, file, callback) => {
-        callback(null, 'images');
-    },
-    filename: (req, file, callback) => {
-        const name = file.originalname.split(' ').join('_');
-        const extension = MIME_TYPES[file.mimetype];
-        callback(null, name + Date.now() + '.' + extension);
-    }
+  destination: (req, file, callback) => {
+    callback(null, 'images')
+  },
+  filename: (req, file, callback) => {//Crée un nom unique pour la nouvelle image
+    const name = file.originalname.split(' ').join('_').split('.')[0];
+    const extension = MIME_TYPES[file.mimetype];
+    callback(null, name + Date.now() + '.' + extension);
+  }
 });
 
-/* multer configured with storage constant, set to handle images only */
-module.exports = multer({ storage }).single('image');
+/* multer configured with storage constant */
+module.exports = multer({storage: storage, limits: { fileSize: maxSize }}).single('file');
