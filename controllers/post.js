@@ -75,7 +75,6 @@ exports.deletePost = (req, res, next) => {
         where: { id: res.locals.userId }
     })
     .then( user => {
-        console.log(user.isAdmin);
         if (user.isAdmin) {
             db.Post.destroy({ 
                 where: { id: req.params.post_id }

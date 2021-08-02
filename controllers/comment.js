@@ -8,7 +8,7 @@ exports.createComment = (req, res, next) => {
     const validInput = new inputValidator.Validator(req.body, {
         content:'required|string|length:255' // match length with sql type
     });
-    console.log(typeof req.params.post_id);
+
     validInput.check()
     .then((matched) => {
         if (!matched) {
@@ -18,7 +18,6 @@ exports.createComment = (req, res, next) => {
                 where: { id: req.params.post_id }
             })
             .then(post => {
-                console.log(typeof post.id);
                 db.Comment.create({
                     content: req.body.content,
                     UserId: res.locals.userId,
