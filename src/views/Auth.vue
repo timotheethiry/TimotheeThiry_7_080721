@@ -115,7 +115,7 @@
                     const user_id = value.user_id;
                     localStorage.setItem("token", userToken);
                     localStorage.setItem("user_id", user_id);
-                    this.$router.push("/Home");
+                    this.$router.push("/Home");   
                 })
                 .catch(() => {
                     localStorage.removeItem("token"); // if request fails, remove any possible user token
@@ -193,6 +193,7 @@
         &__heading {
             width: max-content;
             margin: 1rem auto;
+            font-size: 28px;
         }
     }
 

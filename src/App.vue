@@ -30,6 +30,7 @@ export default {
       localStorage.removeItem('token');
       localStorage.removeItem('user_id');
       this.$router.push("/auth");
+      location.reload();
     },
     checklogged() {
       const token = localStorage.getItem('token');

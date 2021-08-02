@@ -32,7 +32,24 @@
         },
         methods: {
             deleteConfirm() {
-                confirm("Vous voulez vraiment nous quitter ? 😢");
+                const userToDelete = confirm("Vous voulez vraiment nous quitter ? 😢");
+                if (userToDelete == true) {
+                    const token = this.getToken();
+                    const user_id = this.getUserId();
+                    const uri = "http://localhost:3000/api/auth/users/";
+                    const api = uri + user_id
+                    const authValue = 'Bearer ' + token;
+                    fetch(api, {
+                        method: "DELETE",
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'Authorization': authValue
+                        }
+                    })
+                    .then(res => res.json())
+                    .then(() => { this.$router.push("/auth"); });
+                }
             },
             getToken() {
                 return localStorage.getItem('token');
@@ -43,6 +60,7 @@
             logout() {
             localStorage.removeItem('token');
             localStorage.removeItem('user_id');
+            location.reload();
             this.$router.push("/auth");
             }
         },
