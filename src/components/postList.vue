@@ -2,8 +2,9 @@
     <div class="post">
         <div v-for="post in posts" :key="post.id">
             <div class="post__item">
+                <img class="post__image" :src="post.image_url">
                 <h3 class="post__title"> {{ post.title }} </h3>
-                <p class="post__details"> {{ post.writer.prenom }} {{ post.writer.nom }} || {{ post.date_issue }} </p>
+                <p class="post__details"> {{ post.User.prenom }} {{ post.User.nom }} || {{ post.date_issue }} </p>
                 <p class="post__content"> {{ post.content }} </p>
                 <button class="post__button" @click="showUpdate">Modifier l'article</button> <!--show button if logged user is writer-->
                 <button class="post__button" @click="deletePost(post)">Supprimer l'article</button>
@@ -14,9 +15,9 @@
                     <span v-if="errors.commentContent">{{ errors.commentContent }}</span>
                 </div> 
                 
-                <div class="comments" v-if="post.comments.length > 0">
-                    <div v-for="comment in post.comments" :key="comment.id" class="comments__item">
-                        <p class="comments__details"> {{comment.writer.prenom }} {{ comment.writer.nom }} || {{ comment.createdAt }} </p>
+                <div class="comments" v-if="post.Comments.length > 0">
+                    <div v-for="comment in post.Comments" :key="comment.id" class="comments__item">
+                        <p class="comments__details"> {{comment.User.prenom }} {{ comment.User.nom }} || {{ comment.createdAt }} </p>
                         <p class="comments__content"> {{ comment.content }} </p>
                         <button class="post__button" @click="deleteComment(comment)">Supprimer le commentaire</button>
                     </div>
@@ -26,11 +27,24 @@
             <div v-if="toModify" class="post__item"> <!-- bind  to post.id -->
                 <h2 class="post__subheading">Vous avez fait une faute d'orthographe ? On va rectifier ça 😉</h2>
                 
-                <input class="modify-post__title" v-model="modifiedPostTitle" type="text" max="150" name="title" id="title"  :placeholder="post.title">
-                <textarea class="modify-post__content" v-model="modifiedPostContent" type="textarea" name="content" id="content" rows="3" cols="100" :placeholder="post.content"></textarea>
-    
-                <button class="modify__button" @click="modifyPost(post)">Modify post</button>
-                <button class="modify__button modify__button--cancel" @click="showUpdate">Annuler</button>
+                <form ref="form2" name="form" class="modifyPost__form">
+                    <input class="modifyPost__title" v-model="modifiedPostTitle" type="text" max="150" name="title" id="title"  :placeholder="post.title">
+                    <textarea class="modifyPost__content" v-model="modifiedPostContent" name="content" id="content" :placeholder="post.content"></textarea>
+
+                    <div class="modifyPost__handleButtons">
+                        <!--<div v-if="!modifiedFile">
+                            <label class="modifyPost__button modifyPost__button-image" for="modifyFile">Ajouter une image</label>
+                            <input type="file" ref="file2" id="modifyFile" @change="fileUpdate" hidden>
+                        </div>
+                        <div v-else>
+                            <label class="modifyPost__button modifyPost__button-image modifyPost__button-image--modify" for="modifyFile">Modifier une image</label>
+                            <input type="file" ref="file2" id="modifyFile" @change="fileUpdate" hidden>
+                            <button class="modifyPost__button modifyPost__button-image modifyPost__button-image--remove" @click.prevent="removeFile">Retirer l'image</button>
+                        </div>-->
+                        <button class="modifyPost__button" @click.prevent="modifyPost(post)">Modifier l'article</button>
+                        <button class="modifyPost__button modifyPost__button--cancel" @click="showUpdate">Annuler</button>
+                    </div>
+                </form>
 
                 <span v-if="errors.modifiedPostTitle">{{ errors.modifiedPostTitle }}</span>
                 <span v-if="errors.modifiedPostContent">{{ errors.modifiedPostContent }}</span>
@@ -51,15 +65,13 @@
                 commentContent: "",
                 modifiedPostTitle: "",
                 modifiedPostContent: "",
-                errors: {}
+                errors: {},
+                modifiedFile: ''
             }
         },
         methods: {
             getToken() {
                 return localStorage.getItem('token');
-            },
-            update() {
-                this.$forceUpdate();
             },
             deletePost(post) {
                 const post_id = post.id;
@@ -109,19 +121,26 @@
                 const api = uri + post_id;
                 const token = this.getToken();
                 const authValue = 'Bearer ' + token;
+
+                let formData = new FormData();
+                formData.append('title', this.modifiedPostTitle);
+                formData.append('content', this.modifiedPostContent);
+                if (post.image_url !== '') {
+                    const image_name = post.image_url.split('images/')[1];
+                    formData.append('file', image_name);
+                }
+                
                 fetch(api, {
                     method: "PUT",
                     headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
                         'Authorization': authValue
                     },
-                    body: JSON.stringify({'title': this.modifiedPostTitle, 'content': this.modifiedPostContent })
+                    body: formData
                 })
                 .then(res => res.json())
                 .then(value => {
                     if (value.message === "Post modified !") {
-                        location.reload();
+                        this.getAllPosts();
                     }
                 });
             },
@@ -141,70 +160,8 @@
                     body: JSON.stringify({'content': this.commentContent })
                 })
                 .then(res => res.json())
-                .then(() => { location.reload(); });
-            },
-
-            /* loop through the posts array, request the post writer details, append post object propriety 'writer', 
-            assign result to each post.writer */
-            getPostWriter(authValue) {
-                this.posts.forEach(post => {
-                    const writer_id = post.UserId;
-                    const uri = "http://localhost:3000/api/auth/users/";
-                    const apiWriter = uri + writer_id;
-                    fetch(apiWriter, {
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'Authorization': authValue
-                        }
-                    })
-                    .then(res => res.json())
-                    .then((value) => { 
-                        post.writer = value; 
-                    });
-                });
-            },
-
-            /* loop through the posts array, request the post comments details, append post object propriety 'comments', 
-            assign result to each post.comments, loop through the post.comments array, call another method */
-            getComments(authValue) {
-                this.posts.forEach(post => {
-                    const post_id = post.id;
-                    const uri = "http://localhost:3000/api/posts/";
-                    const api = uri + post_id + "/comments";
-                    fetch(api, {
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'Authorization': authValue
-                        }
-                    })
-                    .then(res => res.json())
-                    .then((value) => { 
-                        post.comments = value;
-                        post.comments.forEach(comment => {
-                            this.getCommentWriter(comment, authValue);
-                        });
-                    });
-                });  
-            },
-
-            /* request the post comment writer details, append comment object propriety 'writer', 
-            assign result to each comment.writer */
-            getCommentWriter(comment, authValue) {
-                const writer_id = comment.UserId;
-                const uri = "http://localhost:3000/api/auth/users/";
-                const apiWriter = uri + writer_id;
-                fetch(apiWriter, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'Authorization': authValue
-                    }
-                })
-                .then(res => res.json())
-                .then((value) => { 
-                    comment.writer = value; 
+                .then(() => { 
+                    this.getAllPosts(); 
                 });
             },
             validateInput(value, title, name, max) {
@@ -213,6 +170,29 @@
                 } else {
                     this.errors[name] = '';
                 }
+            },
+            getAllPosts() {
+                const token = this.getToken();
+                const authValue = 'Bearer ' + token;
+                fetch('http://localhost:3000/api/posts', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': authValue
+                    }
+                })
+                .then(res => res.json())
+                .then((json) => { 
+                    this.posts = json;
+                });
+            },
+            /* handle file input onChange event */
+            fileUpdate() {
+                this.modifiedFile = this.$refs.file2.files[0];
+                console.log(this.modifiedFile);
+            },
+            removeFile() {
+                this.modifiedFile = '';
             }
         },
         watch: {
@@ -227,21 +207,7 @@
             }
         },
         created() {
-            const token = this.getToken();
-            const authValue = 'Bearer ' + token;
-            fetch('http://localhost:3000/api/posts', {
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'Authorization': authValue
-                }
-            })
-            .then(res => res.json())
-            .then((json) => { this.posts = json; })
-            .then(() => {
-                this.getPostWriter(authValue);
-                this.getComments(authValue);
-            });
+            this.getAllPosts();
         }
         //donner à admin le droit de delete les comments
         // gestion des images, quand on crée un post possibilité ajouter ou non une image
@@ -258,6 +224,10 @@
             box-shadow: 0px 0px 5px #bdbdbd;
             margin: 1rem 0;
             padding: 1rem 1rem 1rem;    
+        }
+        &__image {
+            width: 100%;
+            max-width: 500px;
         }
         &__title {
             font-weight: bold;
@@ -293,9 +263,6 @@
         padding: 1rem 0 2rem;
         &__item {
             width: 100%;
-            //margin: 1rem;  
-            //background-color: #f8f8f8;
-            //box-shadow: 0px 0px 5px #bdbdbd;
             border-bottom: 1px solid #000;;
             text-align: left;
         }
@@ -304,37 +271,57 @@
         }
     }
 
-    .modify-post__title {
-        height: 30px;
-        width: 95%;
-        max-width: 95%;
-        border: 1px solid #b2b2b2;
-        padding: 10px;
-        margin-bottom: 1rem;
+    .modifyPost {
+        &__title {
+            height: 30px;
+            width: 95%;
+            max-width: 95%;
+            border: 1px solid #b2b2b2;
+            padding: 10px;
+            margin-bottom: 1rem;
+        }
+        &__content {
+            height: 90px;
+            max-height: 90px;
+            width: 95%;
+            max-width: 95%;
+            resize: none;
+            border: 1px solid #b2b2b2;
+            padding: 10px;
+            margin-bottom: 1rem;
+        }
+        &__handleButtons {
+            display: flex;
+            justify-content: space-evenly;
+        }
+        &__button {
+            border: 2px solid #14ca00;
+            border-radius: 10px;
+            background-color: #38e100;
+            height: 30px;
+            cursor: pointer;
+            margin: 0 0 0 0.5rem;
+            min-width: max-content;
+            &-image {
+                display: inline-block;
+                box-sizing: border-box;
+                padding: 5px 5px 0;
+                border: 2px solid #828282;
+                background-color: #f2f2f2;
+                font-size: 13.33px;
+                margin: 0;
+                &--modify {
+                    background-color: #00ff80;
+                }
+                &--remove {
+                    background-color: #0080ff;
+                    padding: 0 5px;
+                }
+            }
+            &--cancel {
+                border: 2px solid #ca0000;
+                background-color: #ff0000;
+            }
+        }  
     }
-
-    .modify-post__content {
-        height: 90px;
-        max-height: 90px;
-        max-width: 95%;
-        resize: none;
-        border: 1px solid #b2b2b2;
-        padding: 10px;
-        margin-bottom: 1rem;
-    }
-
-    .modify__button {
-        border: 2px solid #14ca00;
-        border-radius: 10px;
-        background-color: #38e100;
-        height: 30px;
-        cursor: pointer;
-
-    }
-
-    .modify__button--cancel {
-        border: 2px solid #ca0000;
-        background-color: #ff0000;
-    }
-
 </style>
