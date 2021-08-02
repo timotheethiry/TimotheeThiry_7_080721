@@ -34,7 +34,6 @@ exports.createPost = (req, res, next) => {
 
 /* modify a post w/ or w/o an image */
 exports.modifyPost = (req, res, next) => {
-    const image_url = req.file ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}` : null;
     const validInput = new inputValidator.Validator(req.body, {
         title: 'required|string|length:150',
         content:'required|string|length:2000' // match length with sql type text
@@ -52,8 +51,7 @@ exports.modifyPost = (req, res, next) => {
                 if ( post.UserId == res.locals.userId ) {
                     db.Post.update({ 
                         title: req.body.title,
-                        content: req.body.content,
-                        image_url: image_url 
+                        content: req.body.content 
                     }, {
                         where: { id: req.params.post_id } 
                     })
