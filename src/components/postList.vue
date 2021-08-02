@@ -2,7 +2,7 @@
     <div class="post">
         <div v-for="post in posts" :key="post.id">
             <div class="post__item">
-                <img class="post__image" :src="post.image_url">
+                <img class="post__image" v-if="post.image_url" :src="post.image_url" alt="Image de l'article">
                 <h3 class="post__title"> {{ post.title }} </h3>
                 <p class="post__details"> {{ post.User.prenom }} {{ post.User.nom }} || {{ post.date_issue }} </p>
                 <p class="post__content"> {{ post.content }} </p>
@@ -10,6 +10,7 @@
                 <button class="post__button" @click="deletePost(post)">Supprimer l'article</button>
                 
                 <div class="newComment">
+                    <label for="comment" class="newComment__label">&Eacute;crire un commentaire</label>
                     <input class="newComment__content" type="text" max="255" name="comment" id="comment" v-model="commentContent" placeholder="Pour commenter c'est ici">
                     <button class="post__button post__button--newComment" @click="postComment(post)">Poster un commentaire</button>
                     <span v-if="errors.commentContent">{{ errors.commentContent }}</span>
@@ -254,6 +255,10 @@
             max-width: 95%;
             border: 1px solid #b2b2b2;
             padding: 0 0 0 10px;
+        }
+        &__label {
+            display: inline-block;
+            width: 100%;
         }
     }
 

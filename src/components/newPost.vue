@@ -3,7 +3,10 @@
         <h2 class="newPost__subheading">Faites parler votre clavier</h2>
 
         <form ref="form" name="form" class="newPost__form">
+            <label for="title" class="newPost__label">Titre</label>
             <input class="newPost__title" v-model="title" type="text" max="150" name="title" id="title" >
+
+            <label for="content" class="newPost__label">Contenu</label>
             <textarea class="newPost__content" v-model="content" name="content" id="content" rows="3" cols="100" max="2000" placeholder="Quoi de neuf ?"></textarea>
             
             <span v-if="errors.title">{{ errors.title }}</span>
@@ -115,6 +118,10 @@
             margin: 0 0 1rem 1rem;
         }
         &__form {
+            width: 100%;
+        }
+        &__label {
+            display: inline-block;
             width: 100%;
         }
         &__title {
