@@ -19,7 +19,6 @@ exports.createUser = (req, res, next) => {
     validInput.check()
     .then((matched) => {
         if (!matched) {
-            console.log("input invalid");
             res.status(400).send(validInput.errors);
         } else {
             if (pwRules.validate(userBody.password)) {
