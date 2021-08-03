@@ -1,24 +1,40 @@
-# frontend
+# project installation
 
-## Project setup
+## clone this repo
+```bash
+git clone https://github.com/timotheethiry/TimotheeThiry_7_080721.git
 ```
+
+## Run backend
+
+### checkout backend branch
+```bash
+git checkout backend
+```
+
+### Fill the database credentials in config.json 
+```bash
+cd config
+```
+
+### Start server
+```bash
 npm install
+nodemon serve &
 ```
 
-### Compiles and hot-reloads for development
+## Run frontend
+
+### checkout frontend branch
+```bash
+git checkout frontend
 ```
+
+### Start client
+
+```bash
+npm install
 npm run serve
 ```
 
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## Open the app in localhost:8080/#/auth
