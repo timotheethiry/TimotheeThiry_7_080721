@@ -101,17 +101,58 @@ exports.deleteUser = (req, res, next) => {
             return res.status(401).json({ error: "Didn't find user !"}); 
         }
         if ( user.id == res.locals.userId ) {
-            db.User.destroy({ 
-                where: { id: req.params.user_id }
+
+            /* delete comments of the user */
+            db.Comment.destroy({ 
+                where: { UserId: res.locals.userId }
             })
-            .then(() => res.status(200).json({ message: 'User account deleted !' }))
             .catch(error => res.status(400).json({ error }));
-        } else {
-            return res.status(401).json({ error: "Access denied!" });
+
+            /* search posts of the user and delete the posts comments from other users */
+            db.Post.findAll({
+                where: { UserId: res.locals.userId }
+            })
+            .then(posts => {
+                posts.forEach(post => {
+                    db.Comment.destroy({ 
+                        where: { PostId: post.id }
+                    })
+                    .catch(error => res.status(400).json({ error }));
+
+                    /* image deletion fails, to fix
+                    if (post.image_url !== null) {
+                        const filename = post.image_url.split('/images/')[1];
+                        fs.unlink(`images/${filename}`, () => { 
+                            db.Post.destroy({ 
+                                where: { id: post.id }
+                            })
+                            .catch(error => res.status(400).json({ error }));
+                        }); 
+                    } else {
+                        db.Post.destroy({ 
+                            where: { id: post.id }
+                        })
+                        .catch(error => res.status(400).json({ error }));
+                    }*/
+
+                    db.Post.destroy({ 
+                        where: { id: post.id }
+                    })
+                    .catch(error => res.status(400).json({ error }))
+                });
+            })
+            .catch(error => res.status(404).json(error ));
         }
+
+        db.User.destroy({ 
+            where: { id: res.locals.userId }
+        })
+        .then(() => res.status(200).json({ message: "user account deleted!"}))
+        .catch(error => res.status(400).json({ error }));
     })
     .catch(error => res.status(500).json({ error }));
-};
+
+}; 
 
 /* mask the email when querying the users */
 exports.getAllUsers = (req, res, next) => {

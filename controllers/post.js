@@ -67,7 +67,7 @@ exports.modifyPost = (req, res, next) => {
     .catch(errors => res.status(400).send(validInput.errors));
 };
 
-/* delete a post, search the corresponding image and delete it */
+/* delete a post, delete associated comments, search the corresponding image and delete it */
 exports.deletePost = (req, res, next) => {
     
     /* check if logged user is admin */
@@ -76,11 +76,35 @@ exports.deletePost = (req, res, next) => {
     })
     .then( user => {
         if (user.isAdmin) {
-            db.Post.destroy({ 
+
+            db.Comment.destroy({ 
+                where: { PostId: req.params.post_id }
+            })
+            .then(() => res.status(200).json({ message: 'Comment deleted !' }))
+            .catch(error => res.status(400).json({ error }));
+
+            db.Post.findOne({
                 where: { id: req.params.post_id }
             })
-            .then(() => res.status(200).json({ message: 'Post deleted !' }))
-            .catch(error => res.status(400).json({ error }));
+            .then(post => {
+                if (post.image_url !== null) {
+                    const filename = post.image_url.split('/images/')[1];
+                    fs.unlink(`images/${filename}`, () => {
+                        db.Post.destroy({ 
+                            where: { id: req.params.post_id } 
+                        })
+                        .then(() => res.status(200).json({ message: 'Post deleted !' }))
+                        .catch(error => res.status(400).json({ error }));
+                    });
+                } else {
+                    db.Post.destroy({ 
+                        where: { id: req.params.post_id } 
+                    })
+                    .then(() => res.status(200).json({ message: 'Post deleted !' }))
+                    .catch(error => res.status(400).json({ error }));
+                }
+            })
+            .catch(error => res.status(404).json(error));
 
         } else {
 
@@ -90,6 +114,13 @@ exports.deletePost = (req, res, next) => {
             })
             .then(post => {
                 if (post.UserId == res.locals.userId) {
+
+                    db.Comment.destroy({ 
+                        where: { PostId: req.params.post_id }
+                    })
+                    .then(() => res.status(200).json({ message: 'Comment deleted !' }))
+                    .catch(error => res.status(400).json({ error }));
+                    
                     if (post.image_url !== null) {
                         const filename = post.image_url.split('/images/')[1];
                         fs.unlink(`images/${filename}`, () => {
@@ -98,7 +129,7 @@ exports.deletePost = (req, res, next) => {
                             })
                             .then(() => res.status(200).json({ message: 'Post deleted !' }))
                             .catch(error => res.status(400).json({ error }));
-                        })
+                        });
                     } else {
                         db.Post.destroy({ 
                             where: { id: req.params.post_id } 
