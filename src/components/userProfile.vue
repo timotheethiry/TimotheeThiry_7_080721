@@ -39,6 +39,18 @@
                     const uri = "http://localhost:3000/api/auth/users/";
                     const api = uri + user_id
                     const authValue = 'Bearer ' + token;
+
+                    /* need to send fetch request two times to delete associated posts and comments */
+                    fetch(api, {
+                        method: "DELETE",
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'Authorization': authValue
+                        }
+                    })
+                    .then(res => res.json());
+
                     fetch(api, {
                         method: "DELETE",
                         headers: {
