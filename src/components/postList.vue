@@ -6,8 +6,10 @@
                 <h3 class="post__title"> {{ post.title }} </h3>
                 <p class="post__details"> {{ post.User.prenom }} {{ post.User.nom }} || {{ post.date_issue }} </p>
                 <p class="post__content"> {{ post.content }} </p>
-                <button class="post__button" @click="showUpdate">Modifier l'article</button> <!--show button if logged user is writer-->
-                <button class="post__button" @click="deletePost(post)">Supprimer l'article</button>
+                <div v-if="loggedUser == post.UserId">
+                    <button class="post__button" @click="showUpdate">Modifier l'article</button> <!--show button if logged user is writer-->
+                    <button class="post__button" @click="deletePost(post)">Supprimer l'article</button>
+                </div>
                 
                 <div class="newComment">
                     <label for="comment" class="newComment__label">&Eacute;crire un commentaire</label>
@@ -20,7 +22,9 @@
                     <div v-for="comment in post.Comments" :key="comment.id" class="comments__item">
                         <p class="comments__details"> {{comment.User.prenom }} {{ comment.User.nom }} || {{ comment.createdAt }} </p>
                         <p class="comments__content"> {{ comment.content }} </p>
-                        <button class="post__button" @click="deleteComment(comment)">Supprimer le commentaire</button>
+                        <div v-if="loggedUser == comment.UserId">
+                            <button class="post__button" @click="deleteComment(comment)"> Supprimer le commentaire </button>
+                        </div>
                     </div>
                 </div> 
             </div>
@@ -67,12 +71,16 @@
                 modifiedPostTitle: "",
                 modifiedPostContent: "",
                 errors: {},
-                modifiedFile: ''
+                modifiedFile: '',
+                loggedUser: this.getLoggedUser()
             }
         },
         methods: {
             getToken() {
                 return localStorage.getItem('token');
+            },
+            getLoggedUser() {
+                return localStorage.getItem('user_id');
             },
             deletePost(post) {
                 const post_id = post.id;
@@ -130,7 +138,7 @@
                 let formData = new FormData();
                 formData.append('title', this.modifiedPostTitle);
                 formData.append('content', this.modifiedPostContent);
-                if (post.image_url !== '') {
+                if (post.image_url) {
                     const image_name = post.image_url.split('images/')[1];
                     formData.append('file', image_name);
                 }
