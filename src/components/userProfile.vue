@@ -72,6 +72,7 @@
             logout() {
             localStorage.removeItem('token');
             localStorage.removeItem('user_id');
+            localStorage.removeItem('access');
             location.reload();
             this.$router.push("/auth");
             }
@@ -79,7 +80,7 @@
         created() {
             const token = this.getToken();
             const user_id = this.getUserId();
-            const uri = "http://localhost:3000/api/auth/users/";
+            const uri = "http://localhost:3000/api/auth/users/"; 
             const api = uri + user_id
             const authValue = 'Bearer ' + token;
             fetch(api, {
@@ -90,7 +91,11 @@
                 }
             })
             .then(res => res.json())
-            .then((json) => {this.user = json});
+            .then((json) => { 
+                this.user = json;
+                console.log(this.user.isAdmin);
+                localStorage.setItem('access', this.user.isAdmin);
+            });
         }
     }
 </script>

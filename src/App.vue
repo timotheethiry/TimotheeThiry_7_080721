@@ -29,6 +29,7 @@ export default {
     logout() {
       localStorage.removeItem('token');
       localStorage.removeItem('user_id');
+      localStorage.removeItem('access');
       this.$router.push("/auth");
       location.reload();
     },

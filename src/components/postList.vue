@@ -6,7 +6,7 @@
                 <h3 class="post__title"> {{ post.title }} </h3>
                 <p class="post__details"> {{ post.User.prenom }} {{ post.User.nom }} || {{ post.date_issue }} </p>
                 <p class="post__content"> {{ post.content }} </p>
-                <div v-if="loggedUser == post.UserId">
+                <div v-if="loggedUser == post.UserId || access == true">
                     <button class="post__button" @click="showUpdate">Modifier l'article</button> <!--show button if logged user is writer-->
                     <button class="post__button" @click="deletePost(post)">Supprimer l'article</button>
                 </div>
@@ -72,7 +72,8 @@
                 modifiedPostContent: "",
                 errors: {},
                 modifiedFile: '',
-                loggedUser: this.getLoggedUser()
+                loggedUser: this.getLoggedUser(),
+                access: this.getAccess()
             }
         },
         methods: {
@@ -81,6 +82,9 @@
             },
             getLoggedUser() {
                 return localStorage.getItem('user_id');
+            },
+            getAccess() {
+                return localStorage.getItem('access');
             },
             deletePost(post) {
                 const post_id = post.id;
